@@ -1,25 +1,23 @@
 #!/usr/bin/env python
 
+"""
+    Simple how-to-code-class for show all methods & functions
+    of the Threading module.
+"""
+
 __author__ = "Rafael García Cuéllar"
 __email__ = "r.gc@hotmail.es"
 __copyright__ = "Copyright (c) 2018 Rafael García Cuéllar"
 __license__ = "MIT"
 
 import threading
+import os,sys,inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir) 
+from Utilities import getMetaDetails
 
-# This module defines the following functions:
-def getMetaDetails():
-    print('\n--- M E T A    D E T A I L S ---')
-    print("- TIMEOUT_MAX:      The maximum value allowed for the timeout parameter of blocking functions: %s" % (str(threading.TIMEOUT_MAX)))
-    print("- stack_size():     Thread stack size used when creating new threads: %s" % (str(threading.stack_size())))
-    print("- enumerate():      List of all Thread currently alive: %s" % (str(list(threading.enumerate()))))
-    print("- active_count():   Number of threads currently alive: %s" % (str(threading.active_count())))
-    print("- current_thread(): Current Name Thread Object: %s" % (str(threading.current_thread().getName())))
-    print("- get_ident():      Current Thread identifier: %s" % (str(threading.get_ident())))
-    print("- main_thread():    Main thread Object: %s" % (str(threading.main_thread().getName())))
-    print("- settrace():       Set trace __main__: %s\n" % (str(threading.settrace('__main__'))))
-    
-
+# This module defines the following functions:  
 def doTarget():
     total = 0
     for i in range(1_000):

@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+"""
+    Simply Python programm to compare the Sequential Mapping & Parallel Map.
+    Using the multiprocessing module.
+    Return the time in miliseconds that took each operation. 
+"""
+
 __author__ = "Rafael García Cuéllar"
 __email__ = "r.gc@hotmail.es"
 __copyright__ = "Copyright (c) 2018 Rafael García Cuéllar"

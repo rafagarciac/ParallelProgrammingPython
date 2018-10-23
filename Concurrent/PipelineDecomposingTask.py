@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+    Artesanal example Pipe without Pipe class.
+"""
+
 __author__ = "Rafael García Cuéllar"
 __email__ = "r.gc@hotmail.es"
 __copyright__ = "Copyright (c) 2018 Rafael García Cuéllar"
