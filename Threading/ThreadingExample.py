@@ -13,11 +13,9 @@ __copyright__ = "Copyright (c) 2018 Rafael García Cuéllar"
 __license__ = "MIT"
 
 import os, sys, inspect
-from urllib.request import Request, urlopen 
+from urllib.request import Request, urlopen
+from urllib import error
 import threading
-
-# Set Maximum Recursion
-sys.setrecursionlimit(1_000_000_000)
 
 # Custom Import Module
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -25,13 +23,14 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir) 
 from Utilities import getMetaDetails
 
-urls = ['https://www.google.dk/', 'http://www.esbjergkommune.dk/', 'https://www.dsb.dk/', 'https://www.lego.com/da-dk/', 'https://www.bilka.dk/']
+# Put your URLS
+urls = ['https://www.google.dk/', 'http://www.esbjergkommune.dk/', 'https://www.dsb.dk/', 'https://www.lego.com/da-dk/', 'https://www.bilka.dk/'] # , 'https://docs.python.org/3.8/library/threading.html#module-threading']
 webcontent = []
 
 def checkDirectoryWithoutTxt():
     checkCont = 0
     
-    for root, dirs, files in os.walk('.'):
+    for root, dirs, files in os.walk('txt/'):
         if len(files) != 0:
             for _file in files:
                 if _file.split('.')[1] == "txt":
@@ -42,61 +41,61 @@ def checkDirectoryWithoutTxt():
 def openUrlsInBrowser():
     import webbrowser
     for url in urls:
-        pass
-        # webbrowser.open(url)    # Display url using the default browser.
+        webbrowser.open(url)    # Display url using the default browser.
 
 def getWebContent(url):
-    webcontent.append(urlopen(Request(url, headers={'User-Agent': 'Mozilla/5.0'})).read())
-    print("Got Web content from: " + url)
+    try:
+        webcontent.append(urlopen(Request(url, headers={'User-Agent': 'Mozilla/5.0'})).read())
+        print("Got Web content from: " + url)
+    except error.HTTPError as httpError:
+        print("Didn't get Web content from: " + url + " " + str(httpError))
+
+def makeThread(group=None, numberThreadsToCreate=1, target=None, name=None, args=(), daemon=None):
+    for i in range(numberThreadsToCreate):
+        thread = threading.Thread(group=group, target=target, name=name, args=args, daemon= None)
+        thread.start()        
+        thread.join()
 
 def getWebContentUsingThreads():
     for url in urls:
-        thread = threading.Thread(target=getWebContent(url), name="Thread" + url.upper(), daemon= None)
-        thread.start()        
-        thread.join()
+        makeThread(None, 1, getWebContent, "Thread_" + url.upper(), (url,), None)
+        # thread = threading.Thread(target=getWebContent(url), name="Thread" + url.upper(), daemon= None)
+        # thread.start()        
+        # thread.join()
     print("- enumerate():      List of all Thread currently alive: %s" % (str(list(threading.enumerate()))))
     print("- active_count():   Number of threads currently alive: %s" % (str(threading.active_count())))
 
 def formatNameFile(nameFile):
     return nameFile.replace('/', '').replace(':', '').replace('https', '').replace('http', '').replace('www.', '').replace('.dk', '')
 
+def writeFileHTML(fileName, content):
+    with open("html/" +fileName + ".html", "w") as f:
+        f.write(''.join(str(content)))
+
+def writeFileTXT(fileName, content):
+    with open("txt/" + fileName + ".txt", "w") as f:
+        f.write(str(''.join(sorted(str(content)))).replace(' ', '')) # Merge-sort and insertion-sort hybrid -> Timsort O(n\log n) max. level performance
+
 def writeWebContentInFile():
     for i, content in enumerate(webcontent):
-        with open(formatNameFile(urls[i]) + ".txt", "w") as f: 
-            f.write(str(''.join(map(str, quick_sort(list(str(content))))))) 
-
-# https://github.com/TheAlgorithms/Python/blob/d4b4b7ba35cc4e1ef9480ce1529afa388903133a/sorts/quick_sort.py
-def quick_sort(ARRAY):
-    """Pure implementation of quick sort algorithm in Python
-    :param collection: some mutable ordered collection with heterogeneous
-    comparable items inside
-    :return: the same collection ordered by ascending
-    Examples:
-    >>> quick_sort([0, 5, 3, 2, 2])
-    [0, 2, 2, 3, 5]
-    >>> quick_sort([])
-    []
-    >>> quick_sort([-2, -5, -45])
-    [-45, -5, -2]
-    """
-    ARRAY_LENGTH = len(ARRAY)
-    if( ARRAY_LENGTH <= 1):
-        return ARRAY
-    else:
-        PIVOT = ARRAY[0]
-        GREATER = [ element for element in ARRAY[1:] if element > PIVOT ]
-        LESSER = [ element for element in ARRAY[1:] if element <= PIVOT ]
-        return quick_sort(LESSER) + [PIVOT] + quick_sort(GREATER)
-
-
+        makeThread(None, 1, writeFileHTML, "ThreadWriteHTML", (formatNameFile(urls[i]), content,), None)
+        makeThread(None, 1, writeFileTXT, "ThreadWriteTXT", (formatNameFile(urls[i]), content,), None)
+        # threadHTML = threading.Thread(target=writeFileHTML, name="ThreadWriteHTML", args=(formatNameFile(urls[i]), content,), daemon= None)
+        # threadTXT = threading.Thread(target=writeFileTXT, name="ThreadWriteTXT", args=(formatNameFile(urls[i]), content,), daemon= None)
+        # threadHTML.start()        
+        # threadTXT.start()        
+        # threadHTML.join()
+        # threadTXT.join()
+        
 def main():
     targets = [checkDirectoryWithoutTxt, openUrlsInBrowser, getWebContentUsingThreads, writeWebContentInFile]
     threadNames = ['ThreadCheckDirectory', 'ThreadOpenUrls', 'ThreadGetWebContent', 'ThreadWriters']
     for i in range(4):
-        thread = threading.Thread(target=targets[i], name=threadNames[i], daemon= None)
-        thread.start()        
-        thread.join()
-
+        makeThread(None, 1, targets[i], threadNames[i], (), None)
+        # thread = threading.Thread(target=targets[i], name=threadNames[i], daemon= None)
+        # thread.start()        
+        # thread.join()
+    getMetaDetails()
     
 if __name__ == "__main__":
     main()
