@@ -4,7 +4,7 @@
     3. Get the Web Page content (HTML) of 5 Web Pages by URL.
     4. Create the file with the same name as the "url" 
     5. Write the WP-content in each file 
-    6. Order alphabetically the text by Sort Algorithm.
+    6. Order alphabetically the text by Sort Parallel Algorithm.
 """
 
 __author__ = "Rafael García Cuéllar"
